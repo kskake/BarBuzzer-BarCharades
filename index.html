@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Bar Charades - BarBuzzer</title>
+    <meta name="description" content="Bar Charades: a free browser acting game for 2–4 teams. Act out bar-themed prompts against a 60-second timer with scoring, penalties, and Double Trouble bonus rounds.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/styles.css">
+    <link rel="stylesheet" href="bar_charades.css">
+    
+    <style>
+        :root {
+            --neon-green: #32ff00;
+            --neon-pink: #ff007f;
+            --neon-cyan: #00ffff;
+            --neon-purple: #bf00ff;
+            --dark-bg: #0b1220;
+        }
+        
+        body {
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(180deg, #0f0a1a 0%, var(--dark-bg) 100%);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <div id="site-header"></div>
+
+    <main class="flex-1 flex items-center justify-center py-8 px-4" role="main">
+        <div class="max-w-6xl w-full">
+            
+            <!-- Setup Screen -->
+            <div id="setup-screen" class="space-y-6">
+                <header class="text-center mb-8">
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-4 tracking-tight neon-glow-purple">
+                        🎭 Bar Charades 🎬
+                    </h1>
+                    <p class="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto">
+                        Act it out! Teams alternate acting out bar-themed prompts while being timed.
+                    </p>
+                </header>
+
+                <div class="charades-card p-8 rounded-xl">
+                    <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                        <span>🎮</span> Game Setup
+                    </h2>
+                    
+                    <div class="mb-6">
+                        <label for="team-count" class="block text-lg font-medium text-gray-300 mb-2">
+                            Number of Teams (2-4):
+                        </label>
+                        <input 
+                            type="number" 
+                            id="team-count" 
+                            min="2" 
+                            max="4" 
+                            value="2" 
+                            class="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border-2 border-gray-700 focus:border-purple-500 focus:outline-none text-lg"
+                        >
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="turn-duration" class="block text-lg font-medium text-gray-300 mb-2">
+                            Turn Duration (seconds):
+                        </label>
+                        <select 
+                            id="turn-duration" 
+                            class="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border-2 border-gray-700 focus:border-purple-500 focus:outline-none text-lg"
+                        >
+                            <option value="30">30 seconds</option>
+                            <option value="45">45 seconds</option>
+                            <option value="60" selected>60 seconds (Default)</option>
+                            <option value="90">90 seconds</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold text-gray-300 mb-3">How to Play:</h3>
+                        <ul class="space-y-2 text-gray-400">
+                            <li class="flex gap-2">
+                                <span class="text-purple-400">🎬</span>
+                                <span>Teams alternate taking turns</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <span class="text-purple-400">🎭</span>
+                                <span>One player acts out the prompt silently while teammates guess</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <span class="text-purple-400">⏱️</span>
+                                <span>Timer counts down - buzzer sounds when time is up!</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <span class="text-purple-400">🏆</span>
+                                <span>+1 point for correct guesses, -1 for passes or time-outs</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <span class="text-purple-400">✨</span>
+                                <span>Watch for "Double Trouble" bonus rounds!</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button 
+                        id="start-game-btn" 
+                        class="w-full py-4 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold text-xl hover:from-purple-400 hover:to-pink-500 transition-all shadow-lg hover:shadow-purple-500/50 hover:scale-105"
+                    >
+                        Start Game
+                    </button>
+                </div>
+            </div>
+
+            <!-- Game Screen -->
+            <div id="game-screen" class="hidden space-y-6">
+                <!-- Current Team Display -->
+                <div class="charades-card p-6 rounded-xl text-center">
+                    <h2 class="text-3xl font-bold text-white mb-2">
+                        <span id="current-team-name">Team 1</span>'s Turn
+                    </h2>
+                    <p class="text-gray-400">Get ready to act!</p>
+                </div>
+
+                <!-- Timer Display -->
+                <div class="charades-card p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                            <span>⏱️</span> Time Remaining
+                        </h3>
+                        <span id="timer-display" class="text-4xl font-bold text-purple-400">60</span>
+                    </div>
+                    <div class="w-full h-6 bg-gray-800 rounded-full overflow-hidden">
+                        <div id="timer-bar" class="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 transition-all duration-1000" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <!-- Prompt Display -->
+                <div class="charades-card p-8 rounded-xl text-center" id="prompt-card">
+                    <div id="prompt-hidden" class="space-y-4">
+                        <p class="text-2xl text-gray-300">Ready to see your prompt?</p>
+                        <button 
+                            id="reveal-prompt-btn" 
+                            class="px-8 py-4 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold text-xl hover:from-purple-400 hover:to-pink-500 transition-all shadow-lg hover:scale-105"
+                        >
+                            Reveal Prompt & Start Timer
+                        </button>
+                    </div>
+                    <div id="prompt-revealed" class="hidden space-y-6">
+                        <div class="mb-4">
+                            <span id="prompt-icon" class="text-6xl">🍸</span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-purple-400 mb-2" id="prompt-text">
+                            Loading prompt...
+                        </h3>
+                        <div id="double-trouble-badge" class="hidden inline-block px-4 py-2 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold text-lg animate-pulse">
+                            ✨ DOUBLE TROUBLE! +2 Points! ✨
+                        </div>
+                        <p class="text-gray-400 text-lg" id="prompt-hint"></p>
+                        
+                        <div class="flex gap-3 justify-center mt-6">
+                            <button 
+                                id="correct-btn" 
+                                class="flex-1 max-w-xs py-4 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white font-bold text-xl hover:from-green-400 hover:to-green-500 transition-all shadow-lg hover:scale-105"
+                            >
+                                ✓ Correct!
+                            </button>
+                            <button 
+                                id="pass-btn" 
+                                class="flex-1 max-w-xs py-4 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-bold text-xl hover:from-red-400 hover:to-red-500 transition-all shadow-lg hover:scale-105"
+                            >
+                                ✗ Pass
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scoreboard -->
+                <div class="charades-card p-6 rounded-xl">
+                    <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                        <span>🏆</span> Scoreboard
+                    </h3>
+                    <div id="score-display" class="grid grid-cols-2 gap-4">
+                        <!-- Scores will be dynamically added here -->
+                    </div>
+                </div>
+
+                <!-- Custom Prompt Section -->
+                <div class="charades-card p-6 rounded-xl">
+                    <h3 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                        <span>➕</span> Add Custom Prompt
+                    </h3>
+                    <div class="flex gap-3">
+                        <input 
+                            type="text" 
+                            id="custom-prompt-input" 
+                            placeholder="Enter a bar-themed charade..." 
+                            class="flex-1 px-4 py-3 rounded-lg bg-gray-800 text-white border-2 border-gray-700 focus:border-purple-500 focus:outline-none"
+                        >
+                        <button 
+                            id="add-custom-prompt-btn" 
+                            class="px-6 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold hover:from-purple-400 hover:to-pink-500 transition-all shadow-lg"
+                        >
+                            Add
+                        </button>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">Custom prompts are added to the pool for future rounds</p>
+                </div>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="result-screen" class="hidden space-y-6">
+                <div class="charades-card p-8 rounded-xl text-center">
+                    <div id="result-content">
+                        <!-- Result content will be dynamically added -->
+                    </div>
+                    <div class="mt-8 space-y-3">
+                        <button 
+                            id="play-again-btn" 
+                            class="w-full py-4 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold text-xl hover:from-purple-400 hover:to-pink-500 transition-all shadow-lg hover:scale-105"
+                        >
+                            Play Again
+                        </button>
+                        <a 
+                            href="/games/" 
+                            class="block w-full py-4 rounded-lg bg-gray-700 text-white font-bold text-xl hover:bg-gray-600 transition-all"
+                        >
+                            Back to Games
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ===== GAME GUIDE ===== -->
+    <section class="game-guide" aria-labelledby="bar-charades-guide-heading" style="max-width:700px;margin:2rem auto;padding:1.5rem 1.25rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;color:#cdd6e0;font-family:Inter,system-ui,sans-serif;line-height:1.7;">
+        <h2 id="bar-charades-guide-heading" style="color:#bf00ff;font-size:1.4rem;font-weight:800;margin:0 0 0.75rem;">📖 Bar Charades – Game Guide</h2>
+        <p style="margin:0 0 0.75rem;">Bar Charades is a team-based acting game with bar-themed prompts. Teams take turns acting out prompts silently while teammates race to guess the word — all against the clock.</p>
+        <h3 style="color:#00ffff;font-size:1rem;font-weight:700;margin:1rem 0 0.4rem;">How to Play</h3>
+        <ol style="margin:0 0 0.75rem;padding-left:1.4rem;">
+            <li>Set up 2–4 teams and choose a turn duration (30–90 seconds).</li>
+            <li>The active team's actor taps <strong>Reveal Prompt &amp; Start Timer</strong> when ready.</li>
+            <li>Act out the prompt silently — no words, no sounds!</li>
+            <li>Teammates shout guesses; tap ✓ <strong>Correct!</strong> when they get it right.</li>
+            <li>Tap ✗ <strong>Pass</strong> to skip a prompt (costs a point). Time running out also costs a point.</li>
+            <li>Teams rotate; the team with the most points after all rounds wins.</li>
+        </ol>
+        <h3 style="color:#00ffff;font-size:1rem;font-weight:700;margin:1rem 0 0.4rem;">Bonus Round</h3>
+        <p style="margin:0;">Watch for the <strong>✨ Double Trouble</strong> banner — these special prompts are worth 2 points if guessed correctly!</p>
+    </section>
+
+    <div id="site-footer"></div>
+    <script src="/scripts/load-partials.js"></script>
+    <script src="bar_charades.js"></script>
+</body>
+</html>
