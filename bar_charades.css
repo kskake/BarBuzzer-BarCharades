@@ -1,0 +1,121 @@
+/* Bar Charades - Theater Drama Theme */
+
+/* Neon Glow Effects */
+.neon-glow-purple {
+    color: var(--neon-purple);
+    text-shadow: 0 0 12px rgba(191, 0, 255, 0.8), 0 0 24px rgba(191, 0, 255, 0.5);
+}
+
+.neon-glow-pink {
+    color: var(--neon-pink);
+    text-shadow: 0 0 12px rgba(255, 0, 127, 0.8), 0 0 24px rgba(255, 0, 127, 0.5);
+}
+
+/* Charades Card - Theater Theme */
+.charades-card {
+    background: linear-gradient(135deg, 
+        rgba(62, 0, 90, 0.4) 0%, 
+        rgba(11, 18, 32, 0.6) 100%
+    );
+    border: 2px solid rgba(191, 0, 255, 0.2);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(191, 0, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.charades-card:hover {
+    border-color: rgba(191, 0, 255, 0.4);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.7),
+        0 0 20px rgba(191, 0, 255, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Team Score Card */
+.team-score-card {
+    background: linear-gradient(135deg, 
+        rgba(191, 0, 255, 0.15) 0%, 
+        rgba(255, 0, 127, 0.15) 100%
+    );
+    border: 2px solid rgba(191, 0, 255, 0.3);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.team-score-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(191, 0, 255, 0.3);
+}
+
+.team-score-card.active {
+    border-color: rgba(191, 0, 255, 0.6);
+    box-shadow: 0 0 20px rgba(191, 0, 255, 0.4);
+    background: linear-gradient(135deg, 
+        rgba(191, 0, 255, 0.25) 0%, 
+        rgba(255, 0, 127, 0.25) 100%
+    );
+}
+
+/* Prompt Card Animation */
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(191, 0, 255, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(191, 0, 255, 0.8);
+    }
+}
+
+#prompt-revealed {
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Timer Bar Animation */
+#timer-bar {
+    transition: width 1s linear;
+}
+
+/* Buzzer Flash Effect */
+@keyframes buzzerFlash {
+    0%, 100% { background-color: rgba(255, 0, 0, 0.9); }
+    50% { background-color: rgba(255, 100, 0, 0.9); }
+}
+
+.buzzer-active {
+    animation: buzzerFlash 0.5s ease-in-out 3;
+}
+
+/* Button Hover Effects */
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+button:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .charades-card {
+        padding: 1rem;
+    }
+    
+    #timer-display {
+        font-size: 2.5rem;
+    }
+    
+    #prompt-text {
+        font-size: 1.75rem;
+    }
+    
+    .team-score-card {
+        padding: 0.75rem;
+    }
+}
